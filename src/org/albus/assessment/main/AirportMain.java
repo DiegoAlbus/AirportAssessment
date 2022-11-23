@@ -34,12 +34,11 @@ public class AirportMain {
             airportAssessment\src> java org\albus\assessment\main\AirportMain.java
         */
 
-        if (System.console() != null) {
+        if (null != System.console()) {
             airportsFile = new File("../resources/airports.csv");
             countriesFile = new File("../resources/countries.csv");
             runwaysFile = new File("../resources/runways.csv");
         } else {
-            // When using your IDE use this pathing and comment the other ones
             airportsFile = new File("resources/airports.csv");
             countriesFile = new File("resources/countries.csv");
             runwaysFile = new File("resources/runways.csv");
@@ -133,13 +132,13 @@ public class AirportMain {
                 default -> {
                     if (!exceptionJumped) {
                         System.out.println("Quitting program...");
+                        scanner.close();
                         return;
                     }
                 }
             }
-        } while (option != 0);
+        } while (true);
 
-        scanner.close();
     }
 
     private static void searchByInput(Map<String, Country> countriesList, Map<String, List<Airport>> airportsList) {
