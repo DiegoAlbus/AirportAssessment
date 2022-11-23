@@ -22,7 +22,7 @@ public class AirportMain {
 
     private static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS");
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
 
         /*
             EXECUTE COMMANDS FROM THE SRC FOLDER - MADE IN JAVA 17
@@ -66,15 +66,30 @@ public class AirportMain {
         ReadAirportFile raf = new ReadAirportFile(airportsFile);
         Map<String, List<Airport>> airportsList = raf.retrieveAirportsFromFiles();
 
+        if (airportsList.isEmpty()){
+            System.err.println("The airports file is empty or there are no airports. The program will now quit.");
+            return;
+        }
+
         // We read the countries csv file
         System.out.println(sdf.format(new Date()) + " - Loading countries data...");
         ReadCountryFile rcf = new ReadCountryFile(countriesFile);
         Map<String, Country> countriesList = rcf.retrieveCountriesFromFiles();
 
+        if (countriesList.isEmpty()){
+            System.err.println("The countries file is empty or there are no countries. The program will now quit.");
+            return;
+        }
+
         // We read the runways csv file
         System.out.println(sdf.format(new Date()) + " - Loading runways data...");
         ReadRunwayFile rrf = new ReadRunwayFile(runwaysFile);
         Map<Integer, List<Runway>> runwaysList = rrf.retrieveRunwaysFromFiles();
+        
+        /*if (runwaysList.isEmpty()){
+            System.err.println("The runways file is empty or there are no runways. The program will now quit.");
+            return;
+        }*/
 
         System.out.println(sdf.format(new Date()) + " - DEBUG: All data required has been read.");
 
@@ -211,6 +226,8 @@ public class AirportMain {
                     if (runwaysList.containsKey(a.getId())) {
                         System.out.println("\n=#=#=#=#=# Runways from " + a.getName() + " #=#=#=#=#=");
                         System.out.println(runwaysList.get(a.getId()));
+                    } else {
+                        System.out.println("=#=#=#=#=# The airport " + a.getName() + " has no runways. #=#=#=#=#=");
                     }
                 }
             }

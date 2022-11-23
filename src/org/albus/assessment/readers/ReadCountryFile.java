@@ -23,18 +23,24 @@ public class ReadCountryFile {
         String line = br.readLine(); // We skip the header
 
         Map<String, Country> countriesList = new HashMap<>();
+        int counter = 1;
 
         while ((line = br.readLine()) != null) {
             String[] data = line.split(",", -1);
 
-            int id = Integer.parseInt(data[0]);
-            String code = data[1].replaceAll("\"", "");
-            String name = data[2].replaceAll("\"", "");
-            String continent = data[3].replaceAll("\"", "");
-            String wikipediaLink = data[4].replaceAll("\"", "");
-            String keywords = data[5];
+            try{
+                counter++;
+                int id = Integer.parseInt(data[0]);
+                String code = data[1].replaceAll("\"", "");
+                String name = data[2].replaceAll("\"", "");
+                String continent = data[3].replaceAll("\"", "");
+                String wikipediaLink = data[4].replaceAll("\"", "");
+                String keywords = data[5];
 
-            countriesList.put(code, new Country(id, code, name, continent, wikipediaLink, keywords));
+                countriesList.put(code, new Country(id, code, name, continent, wikipediaLink, keywords));
+            } catch (Exception e) {
+                System.err.println("Row number " + counter + " - " + e.getClass().getName() + " - " + e.getLocalizedMessage());
+            }
         }
 
         br.close();
