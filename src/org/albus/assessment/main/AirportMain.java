@@ -181,6 +181,7 @@ public class AirportMain {
                     System.out.println("Airports in the selected country (" + countriesFound.get(indexSelected - 1).getName() + ")\n");
 
                     for (Airport a : airports) {
+                        System.out.println("\n=#=#=#=#=# " + a.getName() + " #=#=#=#=#=");
                         System.out.println(a);
                     }
                 }
