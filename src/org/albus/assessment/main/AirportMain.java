@@ -9,7 +9,6 @@ import org.albus.assessment.readers.ReadRunwayFile;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -17,7 +16,7 @@ public class AirportMain {
     private static File airportsFile = null;
     private static File countriesFile = null;
     private static File runwaysFile = null;
-    
+
     private static final Scanner scanner = new Scanner(System.in);
 
     private static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS");
@@ -65,7 +64,7 @@ public class AirportMain {
         ReadAirportFile raf = new ReadAirportFile(airportsFile);
         Map<String, List<Airport>> airportsList = raf.retrieveAirportsFromFiles();
 
-        if (airportsList.isEmpty()){
+        if (airportsList.isEmpty()) {
             System.err.println("The airports file is empty or there are no airports. The program will now quit.");
             return;
         }
@@ -75,7 +74,7 @@ public class AirportMain {
         ReadCountryFile rcf = new ReadCountryFile(countriesFile);
         Map<String, Country> countriesList = rcf.retrieveCountriesFromFiles();
 
-        if (countriesList.isEmpty()){
+        if (countriesList.isEmpty()) {
             System.err.println("The countries file is empty or there are no countries. The program will now quit.");
             return;
         }
@@ -117,9 +116,9 @@ public class AirportMain {
             System.out.println("Any other number outside 1, 2 or 3 to quit...\n");
 
             boolean exceptionJumped = false;
-            try{
+            try {
                 option = scanner.nextInt();
-            } catch (InputMismatchException e){
+            } catch (InputMismatchException e) {
                 System.err.println("Only numbers... Try again.");
                 scanner.next();
                 exceptionJumped = true;
@@ -162,28 +161,29 @@ public class AirportMain {
         else {
             System.out.println("\nSelect country by number to show all the airports in the given country...");
             int indexSelected = -1;
-            try{
+            try {
                 indexSelected = scanner.nextInt();
-            } catch (InputMismatchException e){
-                System.err.println("Only numbers allowed...");
-                scanner.next();
-            }
 
-            if (indexSelected <= 0 || indexSelected > countriesFound.size()) {
-                System.err.println("Number is not specified in the list...");
-            } else {
-                List<Airport> airports = airportsList.get(countriesFound.get(indexSelected - 1).getCode());
 
-                if (airportsList.isEmpty()) {
-                    System.out.println(countriesFound.get(indexSelected - 1).getName() + " has no airports.");
+                if (indexSelected <= 0 || indexSelected > countriesFound.size()) {
+                    System.err.println("Number is not specified in the list...");
                 } else {
-                    System.out.println("Airports in the selected country (" + countriesFound.get(indexSelected - 1).getName() + ")\n");
+                    List<Airport> airports = airportsList.get(countriesFound.get(indexSelected - 1).getCode());
 
-                    for (Airport a : airports) {
-                        System.out.println("\n=#=#=#=#=# " + a.getName() + " #=#=#=#=#=");
-                        System.out.println(a);
+                    if (airportsList.isEmpty()) {
+                        System.out.println(countriesFound.get(indexSelected - 1).getName() + " has no airports.");
+                    } else {
+                        System.out.println("Airports in the selected country (" + countriesFound.get(indexSelected - 1).getName() + ")\n");
+
+                        for (Airport a : airports) {
+                            System.out.println("\n=#=#=#=#=# " + a.getName() + " #=#=#=#=#=");
+                            System.out.println(a);
+                        }
                     }
                 }
+            } catch (InputMismatchException e) {
+                System.err.println("Only numbers allowed...");
+                scanner.next();
             }
 
         }
@@ -253,7 +253,7 @@ public class AirportMain {
         System.out.println("\n" + sdf.format(new Date()) + " - DEBUG: Top airports per country listing FIN");
     }
 
-    private static TreeMap<Integer, String> highestNumberOfAirports(Map<String, List<Airport>>  airportsList) {
+    private static TreeMap<Integer, String> highestNumberOfAirports(Map<String, List<Airport>> airportsList) {
         System.out.println(sdf.format(new Date()) + " - DEBUG: Calculating number of airports per country INIT");
 
         // Since TreeMap orders automatically we reverse it
