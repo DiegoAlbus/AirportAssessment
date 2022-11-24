@@ -219,7 +219,7 @@ public class AirportMain {
             System.out.println(c);
             List<Airport> countryAirports = airportsList.get(c.getCode());
 
-            if (countryAirports.isEmpty()) {
+            if (null == countryAirports) {
                 System.out.println(c.getName() + " has no airports.");
             } else {
                 for (Airport a : countryAirports) {
