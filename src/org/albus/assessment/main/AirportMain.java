@@ -166,13 +166,6 @@ public class AirportMain {
                 }
         );
 
-        /*for (Map.Entry<String, Country> m : countriesList.entrySet()) {
-            if (m.getKey().toUpperCase().startsWith(country) || m.getValue().getName().toUpperCase().contains(country)) {
-                System.out.println(index++ + " - " + m.getValue().toString());
-                countriesFound.add(m.getValue());
-            }
-        }*/
-
         if (countriesFound.isEmpty())
             System.out.println("No similarities found.");
         else {
@@ -192,6 +185,10 @@ public class AirportMain {
                     } else {
                         System.out.println("Airports in the selected country (" + countriesFound.get(indexSelected - 1).getName() + ")\n");
 
+                        // Prints all the runways with no pretty printing (FASTER)
+                        // System.out.println(airports);
+
+                        // Prints all the runways with pretty printing (SLOWER)
                         airports.stream().forEach(
                                 (entry) -> {
                                     System.out.println("\n=#=#=#=#=# " + entry.getName() + " #=#=#=#=#=");
@@ -199,10 +196,6 @@ public class AirportMain {
                                 }
                         );
 
-                        /*for (Airport a : airports) {
-                            System.out.println("\n=#=#=#=#=# " + a.getName() + " #=#=#=#=#=");
-                            System.out.println(a);
-                        }*/
                     }
                 }
             } catch (InputMismatchException e) {
@@ -234,13 +227,6 @@ public class AirportMain {
             } catch (NoSuchElementException nse) {
                 System.out.println("\n" + sdf.format(new Date()) + " - DEBUG: Country " + country + " not found.");
             }
-
-            /*for (Map.Entry<String, Country> m : countriesList.entrySet()) {
-                if (m.getValue().getCode().equalsIgnoreCase(country) || m.getValue().getName().equalsIgnoreCase(country)) {
-                    c = m.getValue();
-                    break;
-                }
-            }*/
         }
 
         if (c != null) {
@@ -251,22 +237,17 @@ public class AirportMain {
             if (null == countryAirports) {
                 System.out.println(c.getName() + " has no airports.");
             } else {
-
-                // We filter out airports with no runways
+                // We filter out airports with no runways for optimization
                 List<Airport> air = countryAirports.stream().filter(p -> runwaysList.containsKey(p.getId())).collect(Collectors.toList());
+
+                // Prints all the runways with no pretty printing (FASTER)
+                // System.out.println(air);
+
+                // Prints all the runways with pretty printing (SLOWER)
                 air.stream().forEach((entry) -> {
                     System.out.println("\n=#=#=#=#=# Runways from " + entry.getName() + " #=#=#=#=#=");
                     System.out.println(runwaysList.get(entry.getId()));
                 });
-
-                /*for (Airport a : countryAirports) {
-                    if (runwaysList.containsKey(a.getId())) {
-                        System.out.println("\n=#=#=#=#=# Runways from " + a.getName() + " #=#=#=#=#=");
-                        System.out.println(runwaysList.get(a.getId()));
-                    } else {
-                        System.out.println("=#=#=#=#=# The airport " + a.getName() + " has no runways. #=#=#=#=#=");
-                    }
-                }*/
             }
         }
 
@@ -283,16 +264,6 @@ public class AirportMain {
             System.out.println(i.getAndIncrement() + "# - " + countriesList.get(entry.getValue()) + " with " + entry.getKey() + " airports.");
         });
 
-        /*int i = 1;
-        for (Map.Entry<Integer, String> m : airportsPerCountry.entrySet()) {
-            System.out.println(i + "# - " + countriesList.get(m.getValue()) + " with " + m.getKey() + " airports.");
-            i++;
-
-            if (i > limit) {
-                break;
-            }
-        }*/
-
         System.out.println("\n" + sdf.format(new Date()) + " - DEBUG: Top airports per country listing FIN");
     }
 
@@ -305,11 +276,6 @@ public class AirportMain {
         airportsList.entrySet().stream().forEach((entry) -> {
             tMap.put(entry.getValue().size(), entry.getKey());
         });
-
-        /*for (Map.Entry<String, List<Airport>> a : airportsList.entrySet()) {
-            // Should only exist one country with N airports
-            tMap.put(a.getValue().size(), a.getKey());
-        }*/
 
         System.out.println(sdf.format(new Date()) + " - DEBUG: Calculating number of airports per country FIN");
         return tMap;
