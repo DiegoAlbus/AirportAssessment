@@ -11,6 +11,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class AirportMain {
     private static File airportsFile = null;
@@ -91,13 +93,18 @@ public class AirportMain {
 
         System.out.println(sdf.format(new Date()) + " - DEBUG: All data required has been read.");
 
-        // With a decent amount of time and planning I would aim for a cache system or Stream
+        // Some Testcases //
+        /*
+            - No countries, airports or runways
+            - Top 10 countries with highest num. of airports but there's not enough countries/airports.
+            - Number input when not required.
+            - No occurrences for given input (options, partial country code/name, runways).
+            - Null when countries not found
+            - Empty files, few runways / airports / countries.
+        */
+
         // iso_country from airports = code in countries
         // airport_ref from runways = id from airports
-
-        // TreeMap reverseOrder containing country key and num of airports
-        // Given a country code or name list runways
-        // Retrieve country code/name and get result
 
         // Retrieve number of airports per country
         TreeMap<Integer, String> airportsPerCountry = highestNumberOfAirports(airportsList);
@@ -107,6 +114,7 @@ public class AirportMain {
 
         int option = -1;
 
+        // While the option is in the menu range (switch case) it won't quit.
         do {
             System.out.println("\n=#=#=#=#=# AIRPORT ASSESSMENT #=#=#=#=#=");
             System.out.println("Choose your option:");
@@ -146,15 +154,24 @@ public class AirportMain {
 
         System.out.println(sdf.format(new Date()) + " - DEBUG: Partial code or name search INIT\n");
 
-        int index = 1;
+        AtomicInteger index = new AtomicInteger(1);
 
         List<Country> countriesFound = new ArrayList<>();
-        for (Map.Entry<String, Country> m : countriesList.entrySet()) {
+
+        // We filter and print the countries by the code or name ignoring the casing (ex: eS = 'ES' / Spain or 'BD' / BangladESh) among other results.
+        countriesList.entrySet().stream().filter(p -> p.getKey().toUpperCase().startsWith(country) || p.getValue().getName().toUpperCase().contains(country)).forEach(
+                (entry) -> {
+                    System.out.println(index.getAndIncrement() + " - " + entry.getValue().toString());
+                    countriesFound.add(entry.getValue());
+                }
+        );
+
+        /*for (Map.Entry<String, Country> m : countriesList.entrySet()) {
             if (m.getKey().toUpperCase().startsWith(country) || m.getValue().getName().toUpperCase().contains(country)) {
                 System.out.println(index++ + " - " + m.getValue().toString());
                 countriesFound.add(m.getValue());
             }
-        }
+        }*/
 
         if (countriesFound.isEmpty())
             System.out.println("No similarities found.");
@@ -175,10 +192,17 @@ public class AirportMain {
                     } else {
                         System.out.println("Airports in the selected country (" + countriesFound.get(indexSelected - 1).getName() + ")\n");
 
-                        for (Airport a : airports) {
+                        airports.stream().forEach(
+                                (entry) -> {
+                                    System.out.println("\n=#=#=#=#=# " + entry.getName() + " #=#=#=#=#=");
+                                    System.out.println(entry);
+                                }
+                        );
+
+                        /*for (Airport a : airports) {
                             System.out.println("\n=#=#=#=#=# " + a.getName() + " #=#=#=#=#=");
                             System.out.println(a);
-                        }
+                        }*/
                     }
                 }
             } catch (InputMismatchException e) {
@@ -203,18 +227,23 @@ public class AirportMain {
             // If the key of the map is the code
             c = countriesList.get(country);
         } else {
-            // TODO: optimize
-            for (Map.Entry<String, Country> m : countriesList.entrySet()) {
+
+            Optional<Map.Entry<String, Country>> optionalCountry = countriesList.entrySet().stream().filter(p -> p.getValue().getCode().equalsIgnoreCase(country) || p.getValue().getName().equalsIgnoreCase(country)).findFirst();
+            try{
+                c = optionalCountry.get().getValue();
+            } catch (NoSuchElementException nse) {
+                System.out.println("\n" + sdf.format(new Date()) + " - DEBUG: Country " + country + " not found.");
+            }
+
+            /*for (Map.Entry<String, Country> m : countriesList.entrySet()) {
                 if (m.getValue().getCode().equalsIgnoreCase(country) || m.getValue().getName().equalsIgnoreCase(country)) {
                     c = m.getValue();
                     break;
                 }
-            }
+            }*/
         }
 
-        if (null == c)
-            System.out.println("\n" + sdf.format(new Date()) + " - DEBUG: Country " + country + " not found.");
-        else {
+        if (c != null) {
             System.out.println(sdf.format(new Date()) + " - DEBUG: Country " + country + " found.");
             System.out.println(c);
             List<Airport> countryAirports = airportsList.get(c.getCode());
@@ -222,14 +251,22 @@ public class AirportMain {
             if (null == countryAirports) {
                 System.out.println(c.getName() + " has no airports.");
             } else {
-                for (Airport a : countryAirports) {
+
+                // We filter out airports with no runways
+                List<Airport> air = countryAirports.stream().filter(p -> runwaysList.containsKey(p.getId())).collect(Collectors.toList());
+                air.stream().forEach((entry) -> {
+                    System.out.println("\n=#=#=#=#=# Runways from " + entry.getName() + " #=#=#=#=#=");
+                    System.out.println(runwaysList.get(entry.getId()));
+                });
+
+                /*for (Airport a : countryAirports) {
                     if (runwaysList.containsKey(a.getId())) {
                         System.out.println("\n=#=#=#=#=# Runways from " + a.getName() + " #=#=#=#=#=");
                         System.out.println(runwaysList.get(a.getId()));
                     } else {
                         System.out.println("=#=#=#=#=# The airport " + a.getName() + " has no runways. #=#=#=#=#=");
                     }
-                }
+                }*/
             }
         }
 
@@ -240,7 +277,13 @@ public class AirportMain {
 
         System.out.println(sdf.format(new Date()) + " - DEBUG: Top airports per country listing INIT\n");
 
-        int i = 1;
+        AtomicInteger i = new AtomicInteger(1);
+
+        airportsPerCountry.entrySet().stream().limit(10).forEach((entry) -> {
+            System.out.println(i.getAndIncrement() + "# - " + countriesList.get(entry.getValue()) + " with " + entry.getKey() + " airports.");
+        });
+
+        /*int i = 1;
         for (Map.Entry<Integer, String> m : airportsPerCountry.entrySet()) {
             System.out.println(i + "# - " + countriesList.get(m.getValue()) + " with " + m.getKey() + " airports.");
             i++;
@@ -248,7 +291,7 @@ public class AirportMain {
             if (i > limit) {
                 break;
             }
-        }
+        }*/
 
         System.out.println("\n" + sdf.format(new Date()) + " - DEBUG: Top airports per country listing FIN");
     }
@@ -259,10 +302,14 @@ public class AirportMain {
         // Since TreeMap orders automatically we reverse it
         TreeMap<Integer, String> tMap = new TreeMap<>(Collections.reverseOrder());
 
-        for (Map.Entry<String, List<Airport>> a : airportsList.entrySet()) {
+        airportsList.entrySet().stream().forEach((entry) -> {
+            tMap.put(entry.getValue().size(), entry.getKey());
+        });
+
+        /*for (Map.Entry<String, List<Airport>> a : airportsList.entrySet()) {
             // Should only exist one country with N airports
             tMap.put(a.getValue().size(), a.getKey());
-        }
+        }*/
 
         System.out.println(sdf.format(new Date()) + " - DEBUG: Calculating number of airports per country FIN");
         return tMap;
